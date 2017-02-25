@@ -24,6 +24,7 @@ I plan to do as much with this as I possibly can. Some of the big ones are:
 - Possibly a model creation software that allows the user to create very basic 3D objects
   - I'm planning to have this done with through a click and drag system with vertices and a fairly large grid. I don't plan to have any terribly complex models in this
 - Other primative 3D polygon object types
+- Sound
 
 ### What may eventually come?
 There are a few things that I want to put in if I somehow finish all I've listed above. These are big things that I haven't made myself any promises on
