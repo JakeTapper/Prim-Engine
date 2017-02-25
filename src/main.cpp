@@ -7,6 +7,7 @@ Jake Tapper
 
 GLuint VBO, VAO, EBO;
 
+//Testing creating and rendering objects
 int main() {
 	OList* workspace = &OList();
 	GLFWwindow* window = initGlfw(1280, 720);
