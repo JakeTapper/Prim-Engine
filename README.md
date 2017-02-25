@@ -36,7 +36,7 @@ There are a few things that I want to put in if I somehow finish all I've listed
 - Complex models for much the same reason as textures. I want to make it a simple engine with a lot of depth of use
 
 
-##### Libraries used
+### Libraries used
 The libraries that I used are:
 - GLEW for OpenGL bindings
 - GLFW for input and window functions
