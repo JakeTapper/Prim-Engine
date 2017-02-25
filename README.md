@@ -1,6 +1,6 @@
 # Prim Engine
 
-Prim Engine (Short for primative) is a basic game engine written in C/C++ using Modern OpenGL with GLEW and GLFW. At the moment it's not much more than a framework for a graphics engine, but I plan to add a basic physics engine as well as menus and other such common features
+Prim Engine (Short for primative engine) is a basic game engine written in C/C++ using Modern OpenGL with GLEW and GLFW. At the moment it's not much more than a framework for a graphics engine, but I plan to add a basic physics engine as well as menus and other such common features
 
 ### What's here
 There's not much at the moment, just some basic graphics that don't even include lights. What's actually done?
