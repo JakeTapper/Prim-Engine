@@ -27,9 +27,9 @@ I plan to do as much with this as I possibly can. Some of the big ones are:
 
 ### What may eventually come?
 There are a few things that I want to put in if I somehow finish all I've listed above. These are big things that I haven't made myself any promises on
-- VR support. I know of at least one VR library, but I haven't looked too much at it. If I can get it done, great. If not, shucks.
+- VR support. I know of at least one VR library, but I haven't looked too much at it. If I can get it done, great. If not, shucks
 - Controller support would be cool, but I'm not entirely sure how that's implimented, and I haven't really looked into it
-- Online gameplay would be amazing to play on something that I made, but at the moment I'm not going to aim for stars that high. 
+- Online gameplay would be amazing to play on something that I made, but at the moment I'm not going to aim for stars that high
 
 ### What's not going to be here?
 - Textures - Weird, but at the moment I want to see how good I can make this look using just basic vertex coloring
