@@ -9,7 +9,9 @@
 
 class Camera {
 public:
+	//Projection for where objects should be rendered
 	glm::mat4 proj;
+	//Camera directions/positions
 	glm::vec3 cameraPos;
 	glm::vec3 cameraFront;
 	glm::vec3 cameraUp;
@@ -18,15 +20,22 @@ public:
 	glm::vec3 cameraTarget;
 	glm::mat4 view;
 
+	//Transveral speed of the camera
 	GLfloat cameraSpeed;
+	//Last mouse x and y coordinates
 	GLfloat lastX, lastY;
+	//Current pitch and yaw of the camera
 	GLfloat pitch, yaw;
+	//Keep track of time since last frame
 	GLfloat deltaTime, lastFrame, currentFrame;
+	//OpenGL program to use
 	GLuint program;
 
+	//Allows the initial setting of camera state
 	int firstMouse = true;
 
-	Camera(GLfloat speed, GLuint prog, GLFWwindow* window) {
+	//cameraSpeed, openGL program, GLFW window being used, field of view in degrees
+	Camera(GLfloat speed, GLuint prog, GLFWwindow* window, GLfloat fov) {
 		cameraSpeed = speed;
 		cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 		cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -39,9 +48,10 @@ public:
 
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
-		proj = glm::perspective(glm::radians(50.0f), (float)width / (float)height, 0.1f, 100.0f);
+		proj = glm::perspective(glm::radians(fov/2), (float)width / (float)height, 0.1f, 100.0f);
 	}
 
+	//Handles user mouse movement
 	void mouseMove(GLFWwindow* window, GLdouble xpos, GLdouble ypos) {
 		if (firstMouse)
 		{
@@ -74,6 +84,7 @@ public:
 		cameraFront = glm::normalize(front);
 	}
 
+	//Called every loop to set the shaders based on camera position and direction
 	void update() {
 		glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 		glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
@@ -93,6 +104,7 @@ public:
 		lastFrame = currentFrame;
 	}
 
+	//Correspond to user key inputs. Called by keypress() function in main.cpp
 	void w() {
 		cameraPos += deltaTime * cameraSpeed * cameraFront;
 	}

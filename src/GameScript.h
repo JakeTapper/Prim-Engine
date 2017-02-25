@@ -1,3 +1,9 @@
+/*
+Jake Tapper
+2/25/17
+A framework for creating scripts that interact with the workspace
+*/
+
 #pragma once
 #define GLEW_STATIC
 #include <GL\glew.h>
@@ -14,10 +20,10 @@ public:
 		parent = _parent;
 	}
 
-	virtual void run() = 0;
+	virtual void run() = 0; //Called every game loop
 
 protected:
-	GameObject* parent;
+	GameObject* parent; //The GameObject that contains this script
 };
 
 class SList {
@@ -35,6 +41,7 @@ public:
 		dummy->data = 0;
 	}
 
+	//Adds a script to the end of the list
 	void append(GameScript* g) {
 		Node* p = dummy;
 		while (p->next)
@@ -45,6 +52,7 @@ public:
 		p->next->next = 0;
 	}
 
+	//Calls the run function of every script in the list
 	void run() {
 		Node* p = dummy;
 		while (1) {

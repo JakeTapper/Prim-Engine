@@ -1,3 +1,9 @@
+/*
+Jake Tapper
+2/25/17
+Framework for how every object should be made and how they should act
+*/
+
 #pragma once
 #define GLEW_STATIC
 #include <GL\glew.h>
@@ -19,10 +25,11 @@ public:
 		rotation = _rotation;
 		program = _program;
 
-		scripts = new SList();
-		velocity = glm::vec3(0, 0, 0);
+		scripts = new SList(); //Creates the linked list of script objects
+		velocity = glm::vec3(0, 0, 0); //Sets the initial velocity to 0
 	}
 
+	//Gets the time since last call and updates position before calling the scripts
 	virtual void update() {
 		GLfloat time, deltaTime;
 
@@ -34,16 +41,17 @@ public:
 		scripts->run();
 	}
 
+	//To be called every loop to render the object
 	virtual void render(Camera* camera, GLuint* buffers) = 0;
 
 protected:
-	GLfloat* vertices;
-	GLuint* indices;
-	GLfloat program;
-	SList* scripts;
+	GLfloat* vertices; //Array of verices
+	GLuint* indices;   //Array of indices
+	GLfloat program;   //GL program to use
+	SList* scripts;    //Linked list of scripts
 
 private:
-	GLfloat lastRun;
+	GLfloat lastRun; //Keeps track of the time since update was last called
 };
 
 class OList {
@@ -61,6 +69,7 @@ public:
 		dummy->data = 0;
 	}
 
+	//Adds a GameObject to the end of the list
 	void append(GameObject* g) {
 		Node* p = dummy;
 		while (p->next)
@@ -71,6 +80,7 @@ public:
 		p->next->next = 0;
 	}
 
+	//Calls every objects render function
 	void render(Camera* camera, GLuint* buffers) {
 		Node* p = dummy;
 		while (1) {
@@ -80,6 +90,7 @@ public:
 		}
 	}
 
+	//Calls every objects update function
 	void update() {
 		Node* p = dummy;
 		while (1) {

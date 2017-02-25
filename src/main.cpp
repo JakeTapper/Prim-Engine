@@ -12,7 +12,7 @@ int main() {
 	GLFWwindow* window = initGlfw(1280, 720);
 	
 	initGL(window);
-	setCamera(&Camera(5.0f, program, window));
+	setCamera(&Camera(5.0f, program, window, 100));
 
 	for (float x = -1.5; x <= 1.5; x += 1.5) {
 		for (float y = -1.5; y <= 1.5; y += 1.5) {
@@ -22,24 +22,29 @@ int main() {
 		}
 	}
 
-	loop(window, workspace);
+	loop(window, workspace, 60);
 }
 
 GLFWwindow* initGlfw(int screenWidth, int screenHeight) {
+
+	//Starts glfw
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, 0);
-
+	
+	//Creates the GLFW window itself
 	GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "OpenGL Window", 0, 0);
 
+	//Checks to be sure that the window has been properly created
 	if (!window) {
 		printf("Failed to create GLFW window\n");
 		glfwTerminate();
 		exit(-1);
 	}
 
+	//Sets the callback function and cursor mode
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -49,20 +54,21 @@ GLFWwindow* initGlfw(int screenWidth, int screenHeight) {
 }
 
 void initGL(GLFWwindow* window) {
+	//Starts glew then checks to be sure that it properly started
 	glewExperimental = 1;
-
 	if (glewInit()) {
 		printf("Failed to init GLEW\n");
 		exit(-2);
 	}
 
+	//Gets the size of the frambuffer then uses it to set the opengl viewport size
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 
 	glViewport(0, 0, width, height);
-
 	glEnable(GL_DEPTH_TEST);
 
+	//Loads the shaders that are in shaders.h and compiles them to the program
 	GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
 	GLuint frag = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(vertex, 1, &vertexCode, NULL);
@@ -83,26 +89,30 @@ void initGL(GLFWwindow* window) {
 	glGenBuffers(1, &EBO);
 }
 
-void loop(GLFWwindow* window, OList* workspace) {
+void loop(GLFWwindow* window, OList* workspace, int fpsTarget) {
 	GLfloat currentFrame, deltaTime = 0, lastFrame = 0;
 	GLuint buffers[3] = { VBO, VAO, EBO };
 	
 	while (!glfwWindowShouldClose(window)) {
+	
+		//Waits until the proper interval so the FPS target is hit
+		while (glfwGetTime() - lastFrame < (1.0 / fpsTarget))
+			sleep(25);			
 
-		while (glfwGetTime() - lastFrame < 0.016667);
-
+		//Gets time since last loop
 		currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		printf("%lf\n", deltaTime);
-
+		//Gets user input
 		glfwPollEvents();
 		keypress(deltaTime, window);
 
+		//Render the frame
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//Calls the update and render functions of the camera and game objects/scripts
 		camera->update();
 		workspace->update();
 		workspace->render(camera, buffers);		
@@ -141,3 +151,20 @@ void cameraMove(GLFWwindow* window, GLdouble xpos, GLdouble ypos) {
 void setCamera(Camera* cam) {
 	camera = cam;
 }
+
+//Detects OS type and calls the appropriate sleep function
+#ifdef _WIN32
+#include <windows.h>
+
+void sleep(unsigned millis) {
+	Sleep(millis);
+}
+
+#else 
+#include <unistd.h>
+
+void sleep(unsigned millis) {
+	usleep(millis * 1000);
+}
+
+#endif

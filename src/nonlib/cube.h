@@ -1,3 +1,10 @@
+/*
+Jake Tapper
+2/25/17
+A basic 1x1x1 cube that is colored differently in each corner for easier
+recognition
+*/
+
 #pragma once
 #define GLEW_STATIC
 #include <GL\glew.h>
@@ -14,11 +21,13 @@ public:
 	Cube(glm::vec3 _position, glm::vec3 _rotation, GLfloat _program)
 		: GameObject(_position, _rotation, _program) {
 		
+		//Allocates memory for the verices and indices arrays
 		vertices = (GLfloat*)malloc(sizeof(GLfloat) * 48);
 		if (!vertices) exit(-3);
 		indices = (GLuint*)malloc(sizeof(GLfloat) * 36);
 		if (!indices) exit(-3);
 
+		//Creates the array of verices and copies it to the objects vertices array
 		GLfloat v[] = {
 			-0.5f , -0.5f , -0.5f , 0, 0, 0,
 			-0.5 , -0.5 , 0.5 , 0, 0, 1,
@@ -33,6 +42,7 @@ public:
 			vertices[x] = v[x];
 		}
 
+		//Does the same as vertices, but for indices
 		GLfloat i[] = {
 			0,1,3,
 			0,2,3,
@@ -56,6 +66,8 @@ public:
 	}
 
 	void render(Camera* camera, GLuint* buffers) {
+		//Creates local arrays for the verices and indices so that they are
+		//properly read by the GPU buffers
 		GLfloat verts[48];
 		memcpy(verts, vertices, 48 * sizeof(GLfloat));
 
@@ -91,12 +103,11 @@ public:
 
 		glUseProgram(program);
 
+		//Moves the cube to the correct position and rotates it, then renders
 		glm::mat4 model;
-
 		GLint modelLoc = glGetUniformLocation(program, "model");
 
 		glBindVertexArray(VAO);
-
 		model = glm::translate(model, position);
 		model = glm::rotate(model, rotation.x, glm::vec3(1, 0, 0));
 		model = glm::rotate(model, rotation.y, glm::vec3(0, 1, 0));
