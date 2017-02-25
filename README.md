@@ -43,4 +43,4 @@ The libraries that I used are:
 - GLFW for input and window functions
 - GLM for vector and matrix math
 
-Credit to https://learnopengl.com/ for teaching the basics behind GLFW and OpenGL. I'm not quite sure how much of it (that's not as basic as it gets) is still there from the tutorial, but I tried to do as little copying as possible. A the moment, I know that at least the shaders and the way that those universals are set are pretty unchanged, as well as a fair bit of the Camera implimentation.
+Credit to https://learnopengl.com/ for teaching the basics behind GLFW and OpenGL. I'm not quite sure how much of it (that's not as basic as it gets) is still there from the tutorial, but I tried to do as little copying as possible. A the moment, I know that at least the shaders and the way that the vertex universals are set are pretty unchanged, as well as a fair bit of the Camera implimentation.
