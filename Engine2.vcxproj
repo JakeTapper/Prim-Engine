@@ -25,10 +25,14 @@
     <ClInclude Include="src\main.h" />
     <ClInclude Include="src\nonlib\cube.h" />
     <ClInclude Include="src\nonlib\Gravity.h" />
-    <ClInclude Include="src\shaders.h" />
+    <ClInclude Include="src\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\default.frag" />
+    <None Include="src\shaders\default.vertex" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F6EB14F6-8721-4F16-91A6-0836F99836A3}</ProjectGuid>
