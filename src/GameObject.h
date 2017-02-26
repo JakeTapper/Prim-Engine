@@ -20,38 +20,35 @@ public:
 	glm::vec3 rotation;
 	glm::vec3 velocity;
 
-	GameObject(glm::vec3 _position, glm::vec3 _rotation, GLfloat _program) {
+	int ID;
+
+	GameObject(glm::vec3 _position, glm::vec3 _rotation, GLfloat _program, GLuint buffers[3]) {
 		position = _position;
 		rotation = _rotation;
 		program = _program;
 
 		scripts = new SList(); //Creates the linked list of script objects
 		velocity = glm::vec3(0, 0, 0); //Sets the initial velocity to 0
+		VAO = buffers[0];
+		VBO = buffers[1];
+		EBO = buffers[2];
 	}
 
 	//Gets the time since last call and updates position before calling the scripts
-	virtual void update() {
-		GLfloat time, deltaTime;
-
-		time = glfwGetTime();
-		deltaTime = time - lastRun;
-		lastRun = time;
-
+	virtual void update(GLfloat deltaTime) {
 		position += (velocity * deltaTime);
 		scripts->run();
 	}
 
 	//To be called every loop to render the object
-	virtual void render(Camera* camera, GLuint* buffers) = 0;
+	virtual void render(Camera* camera, GLfloat deltaTime) = 0;
 
 protected:
-	GLfloat* vertices; //Array of verices
-	GLuint* indices;   //Array of indices
-	GLfloat program;   //GL program to use
-	SList* scripts;    //Linked list of scripts
-
-private:
-	GLfloat lastRun; //Keeps track of the time since update was last called
+	GLfloat* vertices;		//Array of verices
+	GLuint* indices;		//Array of indices
+	GLuint VAO, VBO, EBO;	//Buffers for rendering
+	GLfloat program;		//GL program to use
+	SList* scripts;			//Linked list of scripts
 };
 
 class OList {
@@ -62,6 +59,8 @@ class OList {
 	};
 
 public:
+	Node* dummy;
+
 	OList() {
 		dummy = new Node();
 		dummy->last = 0;
@@ -72,34 +71,39 @@ public:
 	//Adds a GameObject to the end of the list
 	void append(GameObject* g) {
 		Node* p = dummy;
-		while (p->next)
+		int pos = -1;
+		while (p->next) {
 			p = p->next;
+			pos++;
+		}
 		p->next = new Node();
 		p->next->last = p;
 		p->next->data = g;
 		p->next->next = 0;
+
+		p->next->data->ID = pos;
 	}
 
 	//Calls every objects render function
-	void render(Camera* camera, GLuint* buffers) {
+	void render(Camera* camera, GLfloat deltaTime) {
 		Node* p = dummy;
 		while (1) {
 			if (!p->next) return;
 			p = p->next;
-			p->data->render(camera, buffers);
+			p->data->render(camera, deltaTime);
 		}
 	}
 
 	//Calls every objects update function
-	void update() {
+	void update(GLfloat deltaTime) {
 		Node* p = dummy;
 		while (1) {
 			if (!p->next) return;
 			p = p->next;
-			p->data->update();
+			p->data->update(deltaTime);
 		}
 	}
 
 private:
-	Node* dummy;
+	//Node* dummy;
 };

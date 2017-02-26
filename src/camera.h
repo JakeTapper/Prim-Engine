@@ -93,8 +93,10 @@ public:
 
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
-		GLint viewLoc = glGetUniformLocation(program, "view");
-		GLint projLoc = glGetUniformLocation(program, "projection");
+		GLint viewLoc, projLoc;
+
+		viewLoc = glGetUniformLocation(program, "view");
+		projLoc = glGetUniformLocation(program, "projection");
 
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));

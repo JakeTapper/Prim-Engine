@@ -1,6 +1,6 @@
 /*
 Jake Tapper
-2/25/17
+2/24/17
 */
 
 #include "main.h"
@@ -13,15 +13,18 @@ int main() {
 	GLFWwindow* window = initGlfw(1280, 720);
 	
 	initGL(window);
-	setCamera(&Camera(5.0f, program, window, 100));
+	setCamera(&Camera(5.0f, program->program, window, 100));
+	GLuint* buffers =  new GLuint[3] {VAO, VBO, EBO};
 
-	for (float x = -1.5; x <= 1.5; x += 1.5) {
-		for (float y = -1.5; y <= 1.5; y += 1.5) {
-			for (float z = -1.5; z <= 1.5; z += 1.5) {
-				workspace->append((GameObject*) new Cube(glm::vec3(x, y, z), glm::vec3(0,0,0), program));
+	/*for (float x = -15; x <= 15; x += 1.5) {
+		for (float y = -15; y <= 15; y += 1.5) {
+			for (float z = -15; z <= 15; z += 1.5) {
+				workspace->append((GameObject*) new Cube(glm::vec3(x-30, y-30, z-30), glm::vec3(0,0,0), glm::vec3(1, 0.2, 0.2), program));
 			}
 		}
-	}
+	}*/
+	
+	workspace->append((GameObject*) new Cube(glm::vec3(0, -1, 0), glm::vec3(0, 0, 0), glm::vec3(1, .2, .2), program->program, buffers));
 
 	loop(window, workspace, 60);
 }
@@ -67,38 +70,35 @@ void initGL(GLFWwindow* window) {
 	glfwGetFramebufferSize(window, &width, &height);
 
 	glViewport(0, 0, width, height);
+
 	glEnable(GL_DEPTH_TEST);
 
-	//Loads the shaders that are in shaders.h and compiles them to the program
-	GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
-	GLuint frag = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(vertex, 1, &vertexCode, NULL);
-	glShaderSource(frag, 1, &fragmentCode, NULL);
-	glCompileShader(vertex);
-	glCompileShader(frag);
+	//Loads the shaders
+	program = new Shader("src/shaders/default.vertex", "src/shaders/default.frag");
 
-	program = glCreateProgram();
-	glAttachShader(program, vertex);
-	glAttachShader(program, frag);
-	glLinkProgram(program);
+	//Set light color and position
+	glUseProgram(program->program);
+	GLint lightPosLoc = glGetUniformLocation(program->program, "lightPos");
+	GLint lightColorLoc = glGetUniformLocation(program->program, "lightColor");
+	glUniform3f(lightPosLoc, 0, 5, 0);
+	glUniform3f(lightColorLoc, 1, .5, .31);
 
-	glDeleteShader(vertex);
-	glDeleteShader(frag);
-
+	//Generate buffers
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
 }
 
-void loop(GLFWwindow* window, OList* workspace, int fpsTarget) {
+void loop(GLFWwindow* window, OList* workspace, int maxFps) {
 	GLfloat currentFrame, deltaTime = 0, lastFrame = 0;
-	GLuint buffers[3] = { VBO, VAO, EBO };
 	
 	while (!glfwWindowShouldClose(window)) {
 	
-		//Waits until the proper interval so the FPS target is hit
-		while (glfwGetTime() - lastFrame < (1.0 / fpsTarget))
+		//Waits until the proper interval so the maxFps isn't exceeded
+		while (glfwGetTime() - lastFrame < (1.0 / maxFps))
 			sleep(25);			
+
+		//printf("%lf\n",deltaTime);
 
 		//Gets time since last loop
 		currentFrame = glfwGetTime();
@@ -115,8 +115,8 @@ void loop(GLFWwindow* window, OList* workspace, int fpsTarget) {
 
 		//Calls the update and render functions of the camera and game objects/scripts
 		camera->update();
-		workspace->update();
-		workspace->render(camera, buffers);		
+		workspace->update(deltaTime);
+		workspace->render(camera, deltaTime);
 		
 		glfwSwapBuffers(window);
 	}

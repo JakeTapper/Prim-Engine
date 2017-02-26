@@ -9,20 +9,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <chrono>
-#include <thread>
+
 
 #include "camera.h"
-#include "shaders.h"
 #include "GameObject.h"
 #include "GameScript.h"
+#include "Shader.h"
 #include "nonlib/cube.h"
 
 #pragma comment(lib, "glfw3.lib")
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glew32s.lib")
 
-GLuint program;
+Shader* program;
 Camera* camera;
 int keys[1024];
 
@@ -31,7 +30,7 @@ GLFWwindow* initGlfw(int screenWidth, int screenHeight);
 //Starts open GL and initiates buffers and the GL program
 void initGL(GLFWwindow* window);
 //The main game loop that calls the render() and update() functions in every object in workspace
-void loop(GLFWwindow* window, OList* workspace, int fpsTarget);
+void loop(GLFWwindow* window, OList* workspace, int maxFps);
 //The callback function for the GLFW window. Sets the key boolean in keys[] when pressed or released
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 //Handles the actual keypress by calling the proper Camera function
