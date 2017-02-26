@@ -19,6 +19,7 @@ I plan to do as much with this as I possibly can. Some of the big things are:
 - A physics engine to handle collisions and the like
 - Lua and Python GameScripts to allow for a more flexible game design and easier scripting
 - Lighting system
+  - This is sort of implimented with one point light that is set up at init. I plan to add full lighting at some point soon
 - HUD
 - Menus
 - Possibly a model creation software that allows the user to create very basic 3D objects
