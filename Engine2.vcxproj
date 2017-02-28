@@ -24,6 +24,7 @@
     <ClInclude Include="src\GameScript.h" />
     <ClInclude Include="src\main.h" />
     <ClInclude Include="src\nonlib\cube.h" />
+    <ClInclude Include="src\nonlib\playerCube.h" />
     <ClInclude Include="src\nonlib\Gravity.h" />
     <ClInclude Include="src\Shader.h" />
   </ItemGroup>
@@ -90,6 +91,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\Users\Jake\Source\Repos\gameEngine\Engine2\Engine2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Jake\Source\Repos\bullet3\build3\vs2010\obj\x64\Release\Bullet3Collision;C:\Users\Jake\Source\Repos\gameEngine\Engine2\Engine2\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Users\Jake\Source\Repos\gameEngine\Engine2\Engine2\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Jake\Source\Repos\gameEngine\Engine2\Engine2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -97,6 +102,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -104,6 +110,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -126,6 +133,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
