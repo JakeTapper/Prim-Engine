@@ -1,24 +1,53 @@
-/*
-Jake Tapper
-2/25/17
-A basic 1x1x1 cube that is colored differently in each corner for easier
-recognition
-*/
-
 #pragma once
-#define GLEW_STATIC
-#include <GL\glew.h>
-#include <GLFW\glfw3.h>
-#include <glm\glm.hpp>
-#include <glm\gtc\matrix_transform.hpp>
-#include <glm\gtc\type_ptr.hpp>
+#include "GameObject.h"
+#include "camera.h"
 
-#include "..\GameObject.h"
-
-class Cube :GameObject {
+class PlayerCube : GameObject {
 public:
-	Cube(glm::vec3 _position, glm::vec3 _rotation, glm::vec3 _size, glm::vec3 color, GLfloat _program, GLuint buffers[3], btDiscreteDynamicsWorld* world, GLfloat mass)
-		: GameObject(_position, _rotation, _size, _program, buffers, world, mass) {
+
+	btRigidBody* body;		//Rigidbody for physics simulation
+	glm::vec3 position;		//Keeps track of position for rendering
+	glm::vec3 lastPos;		//Keeps track of last position for calculating velocity
+	int inAir, falling;		//Keeps track of jumping and falling to find if the player can jump when space is pressed
+
+	PlayerCube(glm::vec3 _position, glm::vec3 _rotation, glm::vec3 _size, GLfloat _program, GLuint buffers[3], btDiscreteDynamicsWorld* world, int _mass) {
+		//Sets variables
+		program = _program;
+		size = _size;
+		inAir = 0;
+		falling = 0;
+		position = _position;
+		lastPos = _position;
+
+		glm::vec3 color = glm::vec3(.2, .2, 1);
+
+		scripts = new SList(); //Creates the linked list of script objects
+		velocity = glm::vec3(0, 0, 0); //Sets the initial velocity to 0
+		VAO = buffers[0];
+		VBO = buffers[1];
+		EBO = buffers[2];
+		
+		//Creates the bounding box for the cube
+		btCollisionShape* shape = new btBoxShape(btVector3(size.x/2, size.y/2, size.z/2));
+		//Sets the rotation and position for the rigid body
+		btDefaultMotionState* state =
+			new btDefaultMotionState(btTransform(btQuaternion(_rotation.x, _rotation.y, _rotation.z, 1), btVector3(_position.x, _position.y, _position.z)));
+		//Sets the mass and inertia
+		btScalar mass = _mass;
+		btVector3 inertia(0, 0, 0);
+		shape->calculateLocalInertia(mass, inertia);
+		//Constructs the rigidbody
+		btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, state, shape, inertia);
+		btRigidBody* rigidBody = new btRigidBody(rigidBodyCI);
+		//Sets the cube rigidbody to the newly created one
+		body = rigidBody;
+		//Adds the cube to the physics world
+		world->addRigidBody(rigidBody);
+		//Disabled deactivation due to object inactivity
+		body->setActivationState(DISABLE_DEACTIVATION);
+		//Stops the cube from rotating
+		body->setAngularFactor(btVector3(0, 0, 0));
+
 
 		//Allocates memory for the verices and indices arrays
 		vertices = (GLfloat*)malloc(sizeof(GLfloat) * 324);
@@ -86,6 +115,7 @@ public:
 		}
 	}
 
+	//Renders the object to the window
 	void render(Camera* camera, GLfloat deltaTime) {
 		//Creates local arrays for the verices and indices so that they are
 		//properly read by the GPU buffers
@@ -126,10 +156,57 @@ public:
 		model = glm::rotate(model, rotation.z, glm::vec3(0, 0, 1));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform3f(viewPosLoc, camera->cameraPos.x, camera->cameraPos.y, camera->cameraPos.z);
-		
+
 		//Render
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
+	}
+
+	virtual void update(GLfloat deltaTime) {	
+		//Runs all of the scripts (Nothing as of yet)
+		scripts->run();
+		//Sets the position and rotation to what the physics engine has determined
+		btTransform trans;
+		body->getMotionState()->getWorldTransform(trans);
+		position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
+		rotation = glm::vec3(body->getOrientation().getX(), body->getOrientation().getY(), body->getOrientation().getZ());
+
+
+		glm::vec3 motion = position - lastPos;
+		if (inAir && !falling && motion.y < 0) //Apex is reached when velocity is lower than 0
+			falling = 1;
+		else if (falling && motion.y >= 0) { //If it was falling, and is not at rest, it has hit the ground
+			inAir = 0;
+			falling = 0;
+		}
+		lastPos = position;
+	}
+
+	//Moves based on the current keypresses
+	void movement(int keys[], Camera* camera) {
+		if (keys[GLFW_KEY_W])
+			body->applyCentralForce(conv(camera->cameraFront, 5));
+		if (keys[GLFW_KEY_A])
+			body->applyCentralForce(conv(glm::cross(camera->cameraFront, camera->cameraUp), -5));
+		if (keys[GLFW_KEY_D])
+			body->applyCentralForce(conv(glm::cross(camera->cameraFront, camera->cameraUp), 5));
+		if (keys[GLFW_KEY_S])
+			body->applyCentralForce(conv(camera->cameraFront, -5));
+		if (keys[GLFW_KEY_SPACE] && !inAir) {
+			body->applyCentralForce(btVector3(0, 150, 0));
+			inAir = 1;
+		}
+			
+	}
+
+	//Helper functions to convert from GLM vector3s and btVector3s
+	btVector3 conv(glm::vec3 v) {
+		return btVector3(v.x, v.y, v.z);
+	}
+
+	//Scales the vector by n while converting
+	btVector3 conv(glm::vec3 v, int n) { 
+		return btVector3(v.x * n, v.y * n, v.z * n);
 	}
 };

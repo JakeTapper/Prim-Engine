@@ -5,8 +5,6 @@
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
-
-
 class Camera {
 public:
 	//Projection for where objects should be rendered
@@ -48,11 +46,12 @@ public:
 
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
-		proj = glm::perspective(glm::radians(fov/2), (float)width / (float)height, 0.1f, 100.0f);
+		proj = glm::perspective(glm::radians(fov / 2), (float)width / (float)height, 0.1f, 100.0f);
 	}
 
 	//Handles user mouse movement
 	void mouseMove(GLFWwindow* window, GLdouble xpos, GLdouble ypos) {
+		//Sets first mouse movement. Causes 90 degree shift at beginning if not used
 		if (firstMouse)
 		{
 			lastX = xpos;
@@ -60,24 +59,29 @@ public:
 			firstMouse = false;
 		}
 
+		//Detects amount that the mouse has moved
 		GLfloat xoffset = xpos - lastX;
 		GLfloat yoffset = lastY - ypos;
 		lastX = xpos;
 		lastY = ypos;
 
+		//Mouse sensitvity
 		GLfloat sensitivity = 0.05f;
 		xoffset *= sensitivity;
 		yoffset *= sensitivity;
 
+		//Sets the yaw and pitch of the movement
 		yaw += xoffset;
 		pitch += yoffset;
 
+		//Keeps pitch within the 90 degree boundry
 		if (pitch > 89.0f)
 			pitch = 89.0f;
 		if (pitch < -89.0f)
 			pitch = -89.0f;
 
-		glm::vec3 front;
+		//Determines the vector pointing forward from the camera
+		glm::vec3 front = glm::vec3(0, 0, 0);
 		front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 		front.y = sin(glm::radians(pitch));
 		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -85,14 +89,19 @@ public:
 	}
 
 	//Called every loop to set the shaders based on camera position and direction
-	void update() {
+	void update(glm::vec3 position) {
+		//Locks camera position to that of the PlayerCube position
+		cameraPos = position + glm::vec3(0, .5, 0) - (cameraFront * glm::vec3(5));
+		//Detemines the camera directions
 		glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-		glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+		glm::vec3 cameraDirection = glm::normalize(position - cameraTarget);
 		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 		glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
 
-		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		//Points the camera at the correct location
+		glm::mat4 view = glm::lookAt(cameraPos, position + cameraFront, cameraUp);
 
+		//Sets the uniforms for camera view and projection
 		GLint viewLoc, projLoc;
 
 		viewLoc = glGetUniformLocation(program, "view");
@@ -104,19 +113,5 @@ public:
 		currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-	}
-
-	//Correspond to user key inputs. Called by keypress() function in main.cpp
-	void w() {
-		cameraPos += deltaTime * cameraSpeed * cameraFront;
-	}
-	void a() {
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * deltaTime * cameraSpeed;
-	}
-	void s() {
-		cameraPos -= deltaTime * cameraSpeed * cameraFront;
-	}
-	void d() {
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * deltaTime * cameraSpeed;
 	}
 };

@@ -1,14 +1,13 @@
 /*
 Jake Tapper
-2/24/17
+2/28/17
 */
 
 #include "main.h"
 
-GLuint VBO, VAO, EBO;
-
-//Testing creating and rendering objects
+//Testing function. For standalone game, delete this and call the init functions and loop() as done here
 int main() {
+
 	OList* workspace = &OList();
 	GLFWwindow* window = initGlfw(1280, 720);
 	
@@ -16,17 +15,24 @@ int main() {
 	setCamera(&Camera(5.0f, program->program, window, 100));
 	GLuint* buffers =  new GLuint[3] {VAO, VBO, EBO};
 
-	/*for (float x = -15; x <= 15; x += 1.5) {
-		for (float y = -15; y <= 15; y += 1.5) {
-			for (float z = -15; z <= 15; z += 1.5) {
-				workspace->append((GameObject*) new Cube(glm::vec3(x-30, y-30, z-30), glm::vec3(0,0,0), glm::vec3(1, 0.2, 0.2), program));
-			}
-		}
-	}*/
-	
-	workspace->append((GameObject*) new Cube(glm::vec3(0, -1, 0), glm::vec3(0, 0, 0), glm::vec3(1, .2, .2), program->program, buffers));
+	initBullet();
+
+	//Ground block
+	workspace->append((GameObject*) new Cube(glm::vec3(0, -2, 0), glm::vec3(0, 0, 0), glm::vec3(20, 1, 20), glm::vec3(.1, 1, .1), program->program, buffers, world, 0));
+
+	//Static blocks
+	workspace->append((GameObject*) new Cube(glm::vec3(3, -1.25, 2), glm::vec3(0, 0, 0), glm::vec3(.5, .5, .5), glm::vec3(0, .1, 1), program->program, buffers, world, 0));
+	workspace->append((GameObject*) new Cube(glm::vec3(5, -1.25, -4), glm::vec3(0, 0, 0), glm::vec3(.5, .5, .5), glm::vec3(0, .1, 1), program->program, buffers, world, 0));
+	workspace->append((GameObject*) new Cube(glm::vec3(-3, -1.25, -6), glm::vec3(0, 0, 0), glm::vec3(.5, .5, .5), glm::vec3(0, .1, 1), program->program, buffers, world, 0));
+
+	//Dynamic blocks
+	workspace->append((GameObject*) new Cube(glm::vec3(-3, -1.25, -2), glm::vec3(0, 0, 0), glm::vec3(.5, .5, .5), glm::vec3(.7, .1, .1), program->program, buffers, world, .125));
+	workspace->append((GameObject*) new Cube(glm::vec3(-5, -1.25, 4), glm::vec3(0, 0, 0), glm::vec3(.5, .5, .5), glm::vec3(.7, .1, .1), program->program, buffers, world, .125));
+	workspace->append((GameObject*) new Cube(glm::vec3(3, -1.25, 6), glm::vec3(0, 0, 0), glm::vec3(.5, .5, .5), glm::vec3(.7, .1, .1), program->program, buffers, world, .125));
+	workspace->append((GameObject*) new Cube(glm::vec3(-3, -1.25, 6), glm::vec3(0, 0, 0), glm::vec3(.5, .5, .5), glm::vec3(.7, .1, .1), program->program, buffers, world, .125));
 
 	loop(window, workspace, 60);
+	delete[] buffers;
 }
 
 GLFWwindow* initGlfw(int screenWidth, int screenHeight) {
@@ -81,7 +87,7 @@ void initGL(GLFWwindow* window) {
 	GLint lightPosLoc = glGetUniformLocation(program->program, "lightPos");
 	GLint lightColorLoc = glGetUniformLocation(program->program, "lightColor");
 	glUniform3f(lightPosLoc, 0, 5, 0);
-	glUniform3f(lightColorLoc, 1, .5, .31);
+	glUniform3f(lightColorLoc, 1, .2, .2);
 
 	//Generate buffers
 	glGenVertexArrays(1, &VAO);
@@ -89,21 +95,43 @@ void initGL(GLFWwindow* window) {
 	glGenBuffers(1, &EBO);
 }
 
+void initBullet() {
+	//Broadphase
+	broadphase = new btDbvtBroadphase();
+
+	//Collision detector and dispatchet
+	collisionConfiguration = new btDefaultCollisionConfiguration();
+	dispatcher = new btCollisionDispatcher(collisionConfiguration);
+
+	//Collision solver
+	solver = new btSequentialImpulseConstraintSolver;
+
+	//Create physics world
+	world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+	world->setGravity(btVector3(0, -9.81, 0));
+}
+
 void loop(GLFWwindow* window, OList* workspace, int maxFps) {
 	GLfloat currentFrame, deltaTime = 0, lastFrame = 0;
+	GLuint* buffers = new GLuint[3]{ VAO, VBO, EBO };
+
+	player = new PlayerCube(glm::vec3(0, 3, 0), glm::vec3(0, 0, 0), glm::vec3(.5, .5, .5), program->program, buffers, world, 1);
+	workspace->append((GameObject*) player);
 	
 	while (!glfwWindowShouldClose(window)) {
 	
 		//Waits until the proper interval so the maxFps isn't exceeded
 		while (glfwGetTime() - lastFrame < (1.0 / maxFps))
-			sleep(25);			
+			sleep(10);			
 
-		//printf("%lf\n",deltaTime);
 
 		//Gets time since last loop
 		currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+		
+		//Step physics by time changed
+		world->stepSimulation(deltaTime, 10);
 
 		//Gets user input
 		glfwPollEvents();
@@ -114,13 +142,34 @@ void loop(GLFWwindow* window, OList* workspace, int maxFps) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Calls the update and render functions of the camera and game objects/scripts
-		camera->update();
+		camera->update(player->position);
 		workspace->update(deltaTime);
 		workspace->render(camera, deltaTime);
 		
+		//Swaps buffers
 		glfwSwapBuffers(window);
 	}
 
+	//Clean up pointers
+	delete[] buffers;
+
+	int i;
+	for (i = world->getNumCollisionObjects() - 1; i >= 0; i--)
+	{
+		btCollisionObject* obj = world->getCollisionObjectArray()[i];
+		world->removeCollisionObject(obj);
+		delete obj;
+	}
+	workspace->clearList(world);
+	delete world;
+
+	delete broadphase;
+	delete collisionConfiguration;
+	delete dispatcher;
+	delete solver;
+	delete program;
+
+	//Close window
 	glfwTerminate();
 }
 
@@ -132,15 +181,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 }
 
 void keypress(GLfloat delta, GLFWwindow* window) {
-	if (keys[GLFW_KEY_W])
-		camera->w();
-	if (keys[GLFW_KEY_S])
-		camera->s();
-	if (keys[GLFW_KEY_A])
-		camera->a();
-	if (keys[GLFW_KEY_D])
-		camera->d();
-
+	player->movement(keys, camera);
 	if (keys[GLFW_KEY_ESCAPE])
 		glfwSetWindowShouldClose(window, 1);
 }
