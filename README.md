@@ -12,11 +12,11 @@ There's not much at the moment, just some basic graphics that don't even include
 - A linked list of GameObjects with traversal methods to call each objects render and update functions, which are called every loop
 - A GameScript class, which is much the same as a GameObject class, but for scripts
 - A linked list of GameScripts, which also has a transveral method for the GameScript's run function
+- A Bullet Physics implimentation for collision detection and handling
 So, just the very whispers of what one day might be a big, strong, game engine.
 
 ### What's not here (yet)
 I plan to do as much with this as I possibly can. Some of the big things are:
-- A physics engine to handle collisions and the like
 - Lua and Python GameScripts to allow for a more flexible game design and easier scripting
 - Lighting system
   - This is sort of implimented with one point light that is set up at init. I plan to add full lighting at some point soon
@@ -43,5 +43,6 @@ The libraries that I used are:
 - GLEW for OpenGL bindings
 - GLFW for input and window functions
 - GLM for vector and matrix math
+- Bullet Physics for physics
 
 Credit to https://learnopengl.com/ for teaching the basics behind GLFW and OpenGL. I'm not quite sure how much of it (that's not as basic as it gets) is still there from the tutorial, but I tried to do as little copying as possible. A the moment, I know that at least the shaders and the way that the vertex universals are set are pretty unchanged, as well as a fair bit of the Camera implimentation.
