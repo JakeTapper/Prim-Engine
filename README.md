@@ -7,7 +7,7 @@ There's not much at the moment, just some basic graphics that don't even include
 - GLFW window and mouse/WASD inputs
 - OpenGL rendering with **very** basic vertex and fragment shaders
 - A basic game loop structure
-- A Camera object which handles the WASD input and FPS style mouse movement
+- A Camera object which tracks the player cube object
 - A GameObject class, which is a very basic class that defines what an object in the engine must do at the very least
 - A linked list of GameObjects with traversal methods to call each objects render and update functions, which are called every loop
 - A GameScript class, which is much the same as a GameObject class, but for scripts
