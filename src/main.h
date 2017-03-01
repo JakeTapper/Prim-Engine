@@ -32,16 +32,16 @@
 #pragma comment(lib, "LinearMath_vs2010_x64_debug")
 
 
-Shader* program;		  //Shader program compiled from the files
-Camera* camera;			  //Camera object to handle mouse movment and key movement
-int keys[1024];			  //Holds key inputs
-GLuint VBO, VAO, EBO;	//Open GL buffers
-btBroadphaseInterface* broadphase;							          //Physics broadphase
-btDefaultCollisionConfiguration* collisionConfiguration;	//Physics collision config
-btCollisionDispatcher* dispatcher;							          //Physics collisions dispatcher
-btSequentialImpulseConstraintSolver* solver;				      //Collisions solver
-btDiscreteDynamicsWorld* world;								            //Physics world
-PlayerCube* player;											                  //Player object to track with camera and move
+Shader* program;      //Shader program compiled from the files
+Camera* camera;       //Camera object to handle mouse movment and key movement
+int keys[1024];       //Holds key inputs
+GLuint VBO, VAO, EBO; //Open GL buffers
+btBroadphaseInterface* broadphase;                        //Physics broadphase
+btDefaultCollisionConfiguration* collisionConfiguration;  //Physics collision config
+btCollisionDispatcher* dispatcher;                        //Physics collisions dispatcher
+btSequentialImpulseConstraintSolver* solver;              //Collisions solver
+btDiscreteDynamicsWorld* world;                           //Physics world
+PlayerCube* player;                                       //Player object to track with camera and move
 
 
 //Starts GLFW and sets version, as well as creating the window. Takes width and height of screen in pixels
