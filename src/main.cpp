@@ -7,14 +7,17 @@ Jake Tapper
 
 //Testing function. For standalone game, delete this and call the init functions and loop() as done here
 int main() {
-
+	//Linked list of all game objects to be rendered
 	OList* workspace = &OList();
+	//GLFW window
 	GLFWwindow* window = initGlfw(1280, 720);
-	
 	initGL(window);
+	//Player camera
 	setCamera(&Camera(5.0f, program->program, window, 100));
+	//OpenGL buffer array to pass to new objects
 	GLuint* buffers =  new GLuint[3] {VAO, VBO, EBO};
 
+	//Creates physics simulation
 	initBullet();
 
 	//Ground block
@@ -31,7 +34,10 @@ int main() {
 	workspace->append((GameObject*) new Cube(glm::vec3(3, -1.25, 6), glm::vec3(0, 0, 0), glm::vec3(.5, .5, .5), glm::vec3(.7, .1, .1), program->program, buffers, world, .125));
 	workspace->append((GameObject*) new Cube(glm::vec3(-3, -1.25, 6), glm::vec3(0, 0, 0), glm::vec3(.5, .5, .5), glm::vec3(.7, .1, .1), program->program, buffers, world, .125));
 
+	//Start the game loop
 	loop(window, workspace, 60);
+	
+	//Delete buffers
 	delete[] buffers;
 }
 
@@ -54,7 +60,7 @@ GLFWwindow* initGlfw(int screenWidth, int screenHeight) {
 		exit(-1);
 	}
 
-	//Sets the callback function and cursor mode
+	//Sets the callback functions and cursor mode
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
